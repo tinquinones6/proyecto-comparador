@@ -1,0 +1,53 @@
+.main-content {
+    margin-left: 270px;
+    padding: 20px;
+  }
+  
+  input, button {
+    padding: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  button {
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .add-button {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .edit-button {
+    background-color: #facc15;
+    color: black;
+  }
+  
+  .delete-button {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  table th, table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  table tr:nth-child(even) {
+    background-color: #f3f4f6;
+  }
+  
+  a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
