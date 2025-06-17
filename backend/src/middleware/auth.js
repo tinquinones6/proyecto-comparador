@@ -1,22 +1,29 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET;
 
-function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
+const isAdmin = (req, res, next) => {
+    try {
+        // Obtener el token del header
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'No se proporcionó token de autenticación' });
+        }
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Token no proporcionado' });
-  }
+        // Verificar el token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Verificar si es admin
+        if (decoded.rol !== 'admin') {
+            return res.status(403).json({ message: 'Acceso denegado: se requieren permisos de administrador' });
+        }
 
-  const token = authHeader.split(' ')[1];
+        // Agregar el usuario decodificado a la request
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: 'Token inválido o expirado' });
+    }
+};
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(403).json({ error: 'Token inválido o expirado' });
-  }
-}
-
-module.exports = authMiddleware;
+module.exports = {
+    isAdmin
+};

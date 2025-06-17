@@ -1,53 +1,143 @@
-.main-content {
-    margin-left: 270px;
-    padding: 20px;
-  }
-  
-  input, button {
-    padding: 8px;
-    margin-bottom: 10px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  button {
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .add-button {
-    background-color: #10b981;
-    color: white;
-  }
-  
-  .edit-button {
-    background-color: #facc15;
-    color: black;
-  }
-  
-  .delete-button {
-    background-color: #ef4444;
-    color: white;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  table th, table td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  table tr:nth-child(even) {
-    background-color: #f3f4f6;
-  }
-  
-  a {
-    color: #2563eb;
-    text-decoration: underline;
-  }
+.admin-content {
+  width: 100%;
+  padding: 1rem;
+}
+
+/* General inputs y botones */
+input,
+button {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+button {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Botones acciones tabla */
+.edit-button,
+.btn-edit {
+  background-color: #facc15;
+  color: black;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-edit:hover {
+  background-color: #eab308;
+}
+
+.delete-button,
+.btn-delete {
+  background-color: #ef4444;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-delete:hover {
+  background-color: #dc2626;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table th,
+table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+table tr:nth-child(even) {
+  background-color: #f3f4f6;
+}
+
+a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* ================================
+   🔷 Estilo para los botones grandes superiores
+   ================================ */
+.admin-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-accion {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-accion svg {
+  margin-right: 0.5rem;
+}
+
+.btn-accion.green {
+  background-color: #10b981;
+}
+
+.btn-accion.green:hover {
+  background-color: #059669;
+  transform: scale(1.03);
+}
+
+.btn-accion.blue {
+  background-color: #3b82f6;
+}
+
+.btn-accion.blue:hover {
+  background-color: #2563eb;
+  transform: scale(1.03);
+}
+
+/* ================================
+   🔄 Botón Limpiar Filtros
+   ================================ */
+.btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background-color: #e5e7eb;
+  color: #1f2937;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-reset:hover {
+  background-color: #d1d5db;
+  transform: scale(1.02);
+}

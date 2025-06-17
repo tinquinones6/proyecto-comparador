@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './config/api';
 
 export function useRepuestos() {
   const [repuestos, setRepuestos] = useState([]);
@@ -7,7 +7,7 @@ export function useRepuestos() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/repuestos')
+    api.get('/repuestos')
       .then((response) => {
         setRepuestos(response.data);
         setLoading(false);

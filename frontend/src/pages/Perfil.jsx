@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useSidebar } from '../context/SidebarContext';
+import api from '../config/api';
 
 function Perfil() {
-  const { abierto } = useSidebar();
   const [usuario, setUsuario] = useState({ nombre: '', email: '', rol: '' });
   const [editando, setEditando] = useState(false);
   const [formData, setFormData] = useState({ nombre: '', email: '' });
@@ -20,7 +18,7 @@ function Perfil() {
 
   const fetchPerfil = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/auth/perfil', {
+      const res = await api.get('/auth/perfil', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsuario(res.data);
@@ -32,7 +30,7 @@ function Perfil() {
 
   const fetchFavoritos = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/favoritos', {
+      const res = await api.get('/favoritos', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFavoritos(res.data);
@@ -43,7 +41,7 @@ function Perfil() {
 
   const guardarCambios = async () => {
     try {
-      const res = await axios.put('http://localhost:3000/api/auth/perfil', formData, {
+      const res = await api.put('/auth/perfil', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsuario(res.data);
@@ -55,8 +53,8 @@ function Perfil() {
 
   const agregarFavorito = async () => {
     try {
-      const res = await axios.post(
-        'http://localhost:3000/api/favoritos',
+      const res = await api.post(
+        '/favoritos',
         nuevoFavorito,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -69,7 +67,7 @@ function Perfil() {
 
   const eliminarFavorito = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/favoritos/${id}`, {
+      await api.delete(`/favoritos/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFavoritos(favoritos.filter(f => f.id !== id));
@@ -79,7 +77,7 @@ function Perfil() {
   };
 
   return (
-    <div className={`main-area ${abierto ? 'shifted' : ''}`}>
+    <div className="container">
       <h2 className="text-2xl font-bold mb-4">Mi Perfil</h2>
 
       {!editando ? (

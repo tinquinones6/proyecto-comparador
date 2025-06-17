@@ -1,14 +1,23 @@
 const {
     obtenerTodosLosRepuestos,
+    obtenerRepuestoPorId,
+    obtenerRepuestosPorCategoria,
+    obtenerCategorias,
     agregarNuevoRepuesto,
     actualizarRepuesto,
     eliminarRepuestoPorId
 } = require('../models/repuestoModel');
 
-// GET
+// GET todos los repuestos
 const obtenerRepuestos = async (req, res) => {
+    const { categoria } = req.query;
     try {
-        const repuestos = await obtenerTodosLosRepuestos();
+        let repuestos;
+        if (categoria) {
+            repuestos = await obtenerRepuestosPorCategoria(categoria);
+        } else {
+            repuestos = await obtenerTodosLosRepuestos();
+        }
         res.json(repuestos);
     } catch (error) {
         console.error('Error al obtener repuestos:', error);
@@ -16,11 +25,37 @@ const obtenerRepuestos = async (req, res) => {
     }
 };
 
-// POST
-const agregarRepuesto = async (req, res) => {
-    const { nombre, marca, modelo, precio, tienda, url } = req.body;
+// GET repuesto por ID
+const obtenerRepuesto = async (req, res) => {
+    const { id } = req.params;
     try {
-        const nuevo = await agregarNuevoRepuesto(nombre, marca, modelo, precio, tienda, url);
+        const repuesto = await obtenerRepuestoPorId(id);
+        if (!repuesto) {
+            return res.status(404).json({ error: 'Repuesto no encontrado' });
+        }
+        res.json(repuesto);
+    } catch (error) {
+        console.error('Error al obtener repuesto:', error);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+};
+
+// GET categorías
+const obtenerTodasCategorias = async (req, res) => {
+    try {
+        const categorias = await obtenerCategorias();
+        res.json(categorias);
+    } catch (error) {
+        console.error('Error al obtener categorías:', error);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+};
+
+// POST nuevo repuesto
+const agregarRepuesto = async (req, res) => {
+    const { nombre, marca, modelo, precio, tienda, url, categoria } = req.body;
+    try {
+        const nuevo = await agregarNuevoRepuesto(nombre, marca, modelo, precio, tienda, url, categoria);
         res.json(nuevo);
     } catch (error) {
         console.error('Error al agregar repuesto:', error);
@@ -28,13 +63,13 @@ const agregarRepuesto = async (req, res) => {
     }
 };
 
-// PUT
+// PUT actualizar repuesto
 const editarRepuesto = async (req, res) => {
     const id = req.params.id;
-    const { nombre, marca, modelo, precio, tienda, url } = req.body;
+    const { nombre, marca, modelo, precio, tienda, url, categoria } = req.body;
 
     try {
-        const actualizado = await actualizarRepuesto(id, nombre, marca, modelo, precio, tienda, url);
+        const actualizado = await actualizarRepuesto(id, nombre, marca, modelo, precio, tienda, url, categoria);
         if (!actualizado) {
             return res.status(404).json({ error: 'Repuesto no encontrado' });
         }
@@ -45,7 +80,7 @@ const editarRepuesto = async (req, res) => {
     }
 };
 
-// DELETE
+// DELETE eliminar repuesto
 const eliminarRepuesto = async (req, res) => {
     const id = req.params.id;
 
@@ -63,6 +98,8 @@ const eliminarRepuesto = async (req, res) => {
 
 module.exports = {
     obtenerRepuestos,
+    obtenerRepuesto,
+    obtenerTodasCategorias,
     agregarRepuesto,
     editarRepuesto,
     eliminarRepuesto

@@ -1,143 +1,150 @@
 import '../styles/admin.css';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Sidebar from '../components/Sidebar';
+import api from '../config/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { FaPlus, FaComments, FaEdit, FaTrash, FaSync } from 'react-icons/fa';
 
 function AdminPanel() {
   const rol = localStorage.getItem('rol');
+  const navigate = useNavigate();
   const [repuestos, setRepuestos] = useState([]);
-  const [formData, setFormData] = useState({
+  const [filtros, setFiltros] = useState({
     nombre: '',
     marca: '',
     modelo: '',
-    precio: '',
-    tienda: '',
-    url: ''
+    categoria: ''
   });
-  const [editId, setEditId] = useState(null);
+  const [repuestosFiltrados, setRepuestosFiltrados] = useState([]);
 
   useEffect(() => {
-    fetchRepuestos();
+    cargarRepuestos();
   }, []);
 
-  const fetchRepuestos = async () => {
+  useEffect(() => {
+    filtrarRepuestos();
+  }, [repuestos, filtros]);
+
+  const cargarRepuestos = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/repuestos');
+      const response = await api.get('/repuestos');
       setRepuestos(response.data);
     } catch (err) {
       console.error('Error al cargar repuestos:', err);
+      toast.error('Error al cargar los repuestos');
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      if (editId) {
-        const response = await axios.put(`http://localhost:3000/api/repuestos/${editId}`, {
-          ...formData,
-          precio: parseFloat(formData.precio)
-        });
-        setRepuestos(repuestos.map(r => (r.id === editId ? response.data : r)));
-        setEditId(null);
-      } else {
-        const response = await axios.post('http://localhost:3000/api/repuestos', {
-          ...formData,
-          precio: parseFloat(formData.precio)
-        });
-        setRepuestos([...repuestos, response.data]);
-      }
-
-      setFormData({
-        nombre: '',
-        marca: '',
-        modelo: '',
-        precio: '',
-        tienda: '',
-        url: ''
-      });
-
-    } catch (err) {
-      console.error(err);
+  const filtrarRepuestos = () => {
+    let resultados = [...repuestos];
+    if (filtros.nombre) {
+      resultados = resultados.filter(r =>
+        r.nombre.toLowerCase().includes(filtros.nombre.toLowerCase())
+      );
     }
-  };
-
-  const handleEdit = (repuesto) => {
-    setFormData({
-      nombre: repuesto.nombre,
-      marca: repuesto.marca,
-      modelo: repuesto.modelo,
-      precio: repuesto.precio,
-      tienda: repuesto.tienda,
-      url: repuesto.url
-    });
-    setEditId(repuesto.id);
+    if (filtros.marca) {
+      resultados = resultados.filter(r =>
+        r.marca.toLowerCase().includes(filtros.marca.toLowerCase())
+      );
+    }
+    if (filtros.modelo) {
+      resultados = resultados.filter(r =>
+        r.modelo.toLowerCase().includes(filtros.modelo.toLowerCase())
+      );
+    }
+    if (filtros.categoria) {
+      resultados = resultados.filter(r =>
+        r.categoria.toLowerCase().includes(filtros.categoria.toLowerCase())
+      );
+    }
+    setRepuestosFiltrados(resultados);
   };
 
   const handleDelete = async (id) => {
     if (!confirm('¿Estás seguro de eliminar este repuesto?')) return;
-
     try {
-      await axios.delete(`http://localhost:3000/api/repuestos/${id}`);
+      await api.delete(`/repuestos/${id}`);
       setRepuestos(repuestos.filter(r => r.id !== id));
+      toast.success('Repuesto eliminado correctamente');
     } catch (err) {
       console.error(err);
+      toast.error('Error al eliminar el repuesto');
     }
   };
 
+  const handleFiltroChange = (e) => {
+    const { name, value } = e.target;
+    setFiltros(prev => ({ ...prev, [name]: value }));
+  };
+
+  const limpiarFiltros = () => {
+    setFiltros({
+      nombre: '',
+      marca: '',
+      modelo: '',
+      categoria: ''
+    });
+  };
+
   if (rol !== 'admin') {
-    return <div className="p-4 text-red-500">Acceso denegado: solo administradores</div>;
+    return <div className="admin-content">Acceso denegado: solo administradores</div>;
   }
 
   return (
-    <div>
-      <Sidebar />
-      <div className="main-content">
-        <h2>Panel de Administración</h2>
-        <form onSubmit={handleSubmit} style={{ maxWidth: 600 }}>
-          <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
-          <input type="text" name="marca" placeholder="Marca" value={formData.marca} onChange={handleChange} required />
-          <input type="text" name="modelo" placeholder="Modelo" value={formData.modelo} onChange={handleChange} required />
-          <input type="number" name="precio" placeholder="Precio" value={formData.precio} onChange={handleChange} required />
-          <input type="text" name="tienda" placeholder="Tienda" value={formData.tienda} onChange={handleChange} required />
-          <input type="url" name="url" placeholder="Link de compra" value={formData.url} onChange={handleChange} required />
-          <button type="submit" className="add-button">
-            {editId ? 'Actualizar repuesto' : 'Agregar repuesto'}
-          </button>
-        </form>
+    <div className="admin-content p-6">
+      <h2 className="text-2xl font-bold text-center mb-6">Panel de Administración</h2>
 
-        <h3>Lista de Repuestos</h3>
-        <table>
-          <thead>
+      <div className="admin-buttons">
+        <Link to="/admin/repuesto/nuevo" className="btn-accion green">
+          <FaPlus /> Agregar Repuesto
+        </Link>
+        <Link to="/admin/comments" className="btn-accion blue">
+          <FaComments /> Gestionar Comentarios
+        </Link>
+      </div>
+
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <h3 className="text-lg font-semibold mb-4">Filtrar Repuestos</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <input name="nombre" value={filtros.nombre} onChange={handleFiltroChange} placeholder="Filtrar por nombre" className="p-2 border rounded" />
+          <input name="marca" value={filtros.marca} onChange={handleFiltroChange} placeholder="Filtrar por marca" className="p-2 border rounded" />
+          <input name="modelo" value={filtros.modelo} onChange={handleFiltroChange} placeholder="Filtrar por modelo" className="p-2 border rounded" />
+          <input name="categoria" value={filtros.categoria} onChange={handleFiltroChange} placeholder="Filtrar por categoría" className="p-2 border rounded" />
+        </div>
+        <button onClick={limpiarFiltros} className="btn-reset mt-4">
+          <FaSync className="mr-2" /> Limpiar filtros
+        </button>
+      </div>
+
+      {/* Tabla */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="min-w-full">
+          <thead className="bg-gray-50">
             <tr>
-              <th>Nombre</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Precio</th>
-              <th>Tienda</th>
-              <th>Link</th>
-              <th>Acciones</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modelo</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            {repuestos.map(r => (
-              <tr key={r.id}>
-                <td>{r.nombre}</td>
-                <td>{r.marca}</td>
-                <td>{r.modelo}</td>
-                <td>{r.precio} CLP</td>
-                <td>{r.tienda}</td>
-                <td><a href={r.url} target="_blank">Comprar</a></td>
-                <td>
-                  <button onClick={() => handleEdit(r)} className="edit-button">Editar</button>
-                  <button onClick={() => handleDelete(r.id)} className="delete-button">Eliminar</button>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {repuestosFiltrados.map(repuesto => (
+              <tr key={repuesto.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm text-gray-900">{repuesto.nombre}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{repuesto.marca}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{repuesto.modelo}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">${repuesto.precio}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{repuesto.categoria}</td>
+                <td className="px-6 py-4 text-sm font-medium space-x-2">
+                  <button onClick={() => navigate(`/admin/repuesto/${repuesto.id}`)} className="btn-edit">
+                    <FaEdit /> Editar
+                  </button>
+                  <button onClick={() => handleDelete(repuesto.id)} className="btn-delete">
+                    <FaTrash /> Eliminar
+                  </button>
                 </td>
               </tr>
             ))}

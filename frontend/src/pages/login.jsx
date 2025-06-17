@@ -1,65 +1,59 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../config/api';
+import { FaUser, FaLock } from 'react-icons/fa';
 import '../styles/login.css';
 
 function Login() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
-        email,
-        password
-      });
-      
-      const { token } = response.data;
-      
-      localStorage.setItem('token', token);
-      
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const rol = payload.rol;
-      
-      localStorage.setItem('rol', rol);
-      
-      if (rol === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
-
+      const response = await api.post('/auth/login', credentials);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('rol', response.data.rol);
+      navigate('/');
     } catch (err) {
-      setError('Credenciales incorrectas');
+      setError('Credenciales inválidas');
     }
   };
 
   return (
     <div className="login-container">
-      <div className="login-box">
-        <h2>Iniciar Sesión</h2>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit">Ingresar</button>
+      <div className="login-card">
+        <h2>Comparador de Repuestos</h2>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <div className="input-icon">
+              <FaUser />
+              <input
+                type="email"
+                placeholder="Correo electrónico"
+                value={credentials.email}
+                onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <div className="input-icon">
+              <FaLock />
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={credentials.password}
+                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+          {error && <div className="error-message">{error}</div>}
+          <button type="submit" className="login-button">
+            Iniciar Sesión
+          </button>
         </form>
       </div>
     </div>

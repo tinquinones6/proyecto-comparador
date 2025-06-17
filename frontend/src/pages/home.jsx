@@ -1,22 +1,50 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import {
-  Box, Grid, TextField, Card, CardContent, CardActions,
-  Typography, Button, Container, Divider, CardMedia
-} from '@mui/material';
+import api from '../config/api';
+import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
+import CommentForm from '../components/CommentForm';
 
 function Home() {
   const [repuestos, setRepuestos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
   const [filtro, setFiltro] = useState({ nombre: '', marca: '', modelo: '' });
   const [comparar, setComparar] = useState([]);
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [marcas, setMarcas] = useState([]);
+  const [modelos, setModelos] = useState([]);
+
+  useEffect(() => {
+    fetchCategorias();
+  }, []);
 
   useEffect(() => {
     fetchRepuestos();
-  }, []);
+  }, [categoriaSeleccionada]);
+
+  useEffect(() => {
+    if (repuestos.length > 0) {
+      const uniqueMarcas = [...new Set(repuestos.map(r => r.marca))];
+      const uniqueModelos = [...new Set(repuestos.map(r => r.modelo))];
+      setMarcas(uniqueMarcas);
+      setModelos(uniqueModelos);
+    }
+  }, [repuestos]);
+
+  const fetchCategorias = async () => {
+    try {
+      const res = await api.get('/repuestos/categorias');
+      setCategorias(res.data);
+    } catch (err) {
+      console.error('Error al obtener categorías', err);
+    }
+  };
 
   const fetchRepuestos = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/repuestos');
+      const res = await api.get('/repuestos', {
+        params: categoriaSeleccionada ? { categoria: categoriaSeleccionada } : {}
+      });
       setRepuestos(res.data);
     } catch (err) {
       console.error('Error al obtener repuestos', err);
@@ -35,140 +63,222 @@ function Home() {
 
   const limpiarComparacion = () => setComparar([]);
 
+  const limpiarFiltros = () => {
+    setFiltro({ nombre: '', marca: '', modelo: '' });
+    setCategoriaSeleccionada('');
+  };
+
   const filtrarRepuestos = repuestos.filter((r) =>
     r.nombre.toLowerCase().includes(filtro.nombre.toLowerCase()) &&
-    r.marca.toLowerCase().includes(filtro.marca.toLowerCase()) &&
-    r.modelo.toLowerCase().includes(filtro.modelo.toLowerCase())
+    (filtro.marca ? r.marca === filtro.marca : true) &&
+    (filtro.modelo ? r.modelo === filtro.modelo : true)
   );
 
   const imagenDefecto = 'https://via.placeholder.com/300x160.png?text=Sin+imagen';
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Comparador de Repuestos
-      </Typography>
+    <div className="home-content">
+      {/* Estadísticas */}
+      <div className="stats-grid">
+        <div className="stats-card">
+          <h3>Total Productos</h3>
+          <div className="number">{repuestos.length}</div>
+          <div className="label">En inventario</div>
+        </div>
+        <div className="stats-card">
+          <h3>En Comparación</h3>
+          <div className="number">{comparar.length}/3</div>
+          <div className="label">Productos seleccionados</div>
+        </div>
+        <div className="stats-card">
+          <h3>Categorías</h3>
+          <div className="number">{categorias.length}</div>
+          <div className="label">Disponibles</div>
+        </div>
+      </div>
 
-      {/* Comparación primero */}
+      {/* Selector de categorías */}
+      <div className="categories-section">
+        <h2>Categorías de Repuestos</h2>
+        <div className="categories-grid">
+          <button
+            className={`category-button ${!categoriaSeleccionada ? 'active' : ''}`}
+            onClick={() => setCategoriaSeleccionada('')}
+          >
+            Todos
+          </button>
+          {categorias.map((cat) => (
+            <button
+              key={cat}
+              className={`category-button ${categoriaSeleccionada === cat ? 'active' : ''}`}
+              onClick={() => setCategoriaSeleccionada(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Barra de búsqueda y filtros */}
+      <div className="search-container">
+        <div className={`search-wrapper ${searchExpanded ? 'expanded' : ''}`}>
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Buscar repuestos..."
+            value={filtro.nombre}
+            onChange={(e) => setFiltro({ ...filtro, nombre: e.target.value })}
+            onFocus={() => setSearchExpanded(true)}
+            onBlur={() => setSearchExpanded(false)}
+          />
+          {filtro.nombre && (
+            <button 
+              className="clear-search" 
+              onClick={() => setFiltro({ ...filtro, nombre: '' })}
+            >
+              <FaTimes />
+            </button>
+          )}
+        </div>
+        <button 
+          className={`filter-button ${mostrarFiltros ? 'active' : ''}`}
+          onClick={() => setMostrarFiltros(!mostrarFiltros)}
+        >
+          <FaFilter />
+          <span>Filtros</span>
+        </button>
+      </div>
+
+      {/* Panel de filtros */}
+      {mostrarFiltros && (
+        <div className="filters-panel">
+          <div className="filters-content">
+            <div className="filter-group">
+              <label>Marca:</label>
+              <select
+                value={filtro.marca}
+                onChange={(e) => setFiltro({ ...filtro, marca: e.target.value })}
+              >
+                <option value="">Todas las marcas</option>
+                {marcas.map((marca) => (
+                  <option key={marca} value={marca}>{marca}</option>
+                ))}
+              </select>
+            </div>
+            <div className="filter-group">
+              <label>Modelo:</label>
+              <select
+                value={filtro.modelo}
+                onChange={(e) => setFiltro({ ...filtro, modelo: e.target.value })}
+              >
+                <option value="">Todos los modelos</option>
+                {modelos.map((modelo) => (
+                  <option key={modelo} value={modelo}>{modelo}</option>
+                ))}
+              </select>
+            </div>
+            <button className="button-secondary" onClick={limpiarFiltros}>
+              Limpiar filtros
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Tabla de comparación */}
       {comparar.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" gutterBottom>
-            Comparando {comparar.length} repuesto(s)
-          </Typography>
-
-          <Grid container spacing={2}>
+        <div className="comparison-section">
+          <h2>Comparación de Repuestos</h2>
+          <div className="comparison-grid">
             {comparar.map((r) => (
-              <Grid item xs={12} sm={4} key={r.id}>
-                <Card sx={{ backgroundColor: '#f5f5f5' }}>
-                  <CardMedia
-                    component="img"
-                    height="160"
-                    image={r.imagen_url || imagenDefecto}
-                    alt={r.nombre}
-                  />
-                  <CardContent>
-                    <Typography variant="h6">{r.nombre}</Typography>
-                    <Typography variant="body2" color="text.secondary">{r.descripcion}</Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>Marca: {r.marca}</Typography>
-                    <Typography variant="body2">Modelo: {r.modelo}</Typography>
-                    <Typography variant="body1" fontWeight="bold">
-                      Precio: {r.precio} CLP
-                    </Typography>
-                    <Typography variant="body2">Tienda: {r.tienda}</Typography>
-                  </CardContent>
-                  <CardActions sx={{ justifyContent: 'space-between' }}>
-                    <Button
-                      size="small"
-                      color="error"
+              <div key={r.id} className="product-card" style={{background: 'var(--comparison-background)'}}>
+                <img
+                  src={r.imagen_url || imagenDefecto}
+                  alt={r.nombre}
+                  className="product-image"
+                />
+                <div className="product-info">
+                  <h3>{r.nombre}</h3>
+                  <p className="price">{r.precio.toLocaleString('es-CL')} CLP</p>
+                  <p><strong>Marca:</strong> {r.marca}</p>
+                  <p><strong>Modelo:</strong> {r.modelo}</p>
+                  <p><strong>Tienda:</strong> {r.tienda}</p>
+                  <div className="product-actions">
+                    <button
+                      className="button-danger"
                       onClick={() => quitarDeComparacion(r.id)}
                     >
                       Quitar
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
+                    </button>
+                    <a
                       href={r.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="button-primary"
                     >
                       Comprar
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
+                    </a>
+                  </div>
+                  <CommentForm sparepartId={r.id} />
+                </div>
+              </div>
             ))}
-          </Grid>
-
-          <Box sx={{ mt: 2 }}>
-            <Button variant="outlined" color="secondary" onClick={limpiarComparacion}>
-              Limpiar comparación
-            </Button>
-          </Box>
-          <Divider sx={{ my: 4 }} />
-        </Box>
+          </div>
+          <button 
+            className="button-secondary" 
+            onClick={limpiarComparacion}
+            style={{display: 'block', margin: '2rem auto 0'}}
+          >
+            Limpiar comparación
+          </button>
+        </div>
       )}
 
-      {/* Filtros */}
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={4}>
-          <TextField
-            label="Buscar por nombre"
-            fullWidth
-            value={filtro.nombre}
-            onChange={(e) => setFiltro({ ...filtro, nombre: e.target.value })}
-          />
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <TextField
-            label="Marca"
-            fullWidth
-            value={filtro.marca}
-            onChange={(e) => setFiltro({ ...filtro, marca: e.target.value })}
-          />
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <TextField
-            label="Modelo"
-            fullWidth
-            value={filtro.modelo}
-            onChange={(e) => setFiltro({ ...filtro, modelo: e.target.value })}
-          />
-        </Grid>
-      </Grid>
-
-      {/* Resultados */}
-      <Grid container spacing={2}>
-        {filtrarRepuestos.map((r) => (
-          <Grid item xs={12} sm={6} md={4} key={r.id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="160"
-                image={r.imagen_url || imagenDefecto}
-                alt={r.nombre}
-              />
-              <CardContent>
-                <Typography variant="h6">{r.nombre}</Typography>
-                <Typography variant="body2">Marca: {r.marca}</Typography>
-                <Typography variant="body2">Modelo: {r.modelo}</Typography>
-                <Typography variant="body2">Precio: {r.precio} CLP</Typography>
-                <Typography variant="body2">Tienda: {r.tienda}</Typography>
-              </CardContent>
-              <CardActions>
-                <Button
-                  size="small"
-                  variant="contained"
-                  onClick={() => agregarAComparacion(r)}
-                  disabled={comparar.find((c) => c.id === r.id) || comparar.length >= 3}
-                >
-                  + Comparar
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+      {/* Lista de repuestos */}
+      <div className="inventory-table-container">
+        <table className="inventory-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Precio</th>
+              <th>Tienda</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtrarRepuestos.map((r) => (
+              <tr key={r.id}>
+                <td>
+                  <div className="product-cell">
+                    <img
+                      src={r.imagen_url || imagenDefecto}
+                      alt={r.nombre}
+                      className="product-thumbnail"
+                    />
+                    <span>{r.nombre}</span>
+                  </div>
+                </td>
+                <td>{r.marca}</td>
+                <td>{r.modelo}</td>
+                <td className="price">{r.precio} CLP</td>
+                <td>{r.tienda}</td>
+                <td>
+                  <button
+                    className="button-primary"
+                    onClick={() => agregarAComparacion(r)}
+                    disabled={comparar.find((c) => c.id === r.id) || comparar.length >= 3}
+                  >
+                    Comparar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
