@@ -12,8 +12,9 @@ const getApiUrl = () => {
   
   // Si estamos en producción (IP específica)
   if (hostname === '146.83.198.35') {
-    // El backend está en puerto 80
-    return `http://146.83.198.35:80/api`;
+    // Si el frontend está en puerto 1212, el backend debería estar en puerto 3000
+    // Si el frontend está en puerto 1211, el backend debería estar en puerto 3000
+    return `${protocol}//${hostname}:3000/api`;
   }
   
   // Si estamos en desarrollo local
@@ -33,18 +34,7 @@ export const CONFIG = {
   APP_NAME: 'RepAuto Comparador',
   VERSION: '1.0.0',
   TIMEOUT: 30000, // 30 segundos
-  MAX_RETRIES: 3,
-  // Configuración de puertos
-  PORTS: {
-    PRODUCTION: {
-      FRONTEND: 1212, // Puerto real del frontend en producción
-      BACKEND: 80
-    },
-    DEVELOPMENT: {
-      FRONTEND: 5173,
-      BACKEND: 3000
-    }
-  }
+  MAX_RETRIES: 3
 };
 
 // Log de configuración en desarrollo
@@ -52,7 +42,6 @@ if (import.meta.env.DEV) {
   console.log('🔧 Configuración Frontend:', {
     API_URL,
     hostname: window.location.hostname,
-    port: window.location.port,
     environment: import.meta.env.MODE
   });
 }

@@ -12,7 +12,7 @@ const rutasFavoritos = require('./routes/favoritos');
 const rutasComments = require('./routes/comments');
 
 const app = express();
-const puerto = process.env.PORT || (process.env.NODE_ENV === 'production' ? 80 : 3000);
+const puerto = process.env.PORT || 3000;
 
 // Configuración CORS dinámica
 const corsOptions = {
@@ -22,15 +22,16 @@ const corsOptions = {
     
     // Lista de orígenes permitidos
     const allowedOrigins = [
-      'http://localhost:5173',        // Desarrollo local (Vite dev)
-      'http://localhost:4173',        // Desarrollo local (Vite preview)
-      'http://localhost:3000',        // Desarrollo local alternativo
-      'http://127.0.0.1:5173',        // Desarrollo local IP
-      'http://127.0.0.1:4173',        // Desarrollo local IP preview
-      'http://146.83.198.35:1212',    // Producción frontend puerto 1212
-      'http://146.83.198.35',         // Producción sin puerto
-      'https://146.83.198.35:1212',   // HTTPS si se usa
-      process.env.FRONTEND_URL        // URL del frontend desde .env
+      'http://localhost:5173',      // Desarrollo local (Vite)
+      'http://localhost:3000',      // Desarrollo local alternativo
+      'http://127.0.0.1:5173',      // Desarrollo local IP
+      'http://146.83.198.35:1211',  // Producción Apache puerto 1211
+      'http://146.83.198.35:1212',  // Producción Apache puerto 1212
+      'http://146.83.198.35',       // Producción sin puerto
+      'https://146.83.198.35:1211', // HTTPS puerto 1211
+      'https://146.83.198.35:1212', // HTTPS puerto 1212
+      'https://146.83.198.35',      // HTTPS sin puerto
+      process.env.FRONTEND_URL      // URL del frontend desde .env
     ].filter(Boolean); // Filtrar valores undefined/null
     
     if (allowedOrigins.indexOf(origin) !== -1) {
@@ -51,12 +52,42 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Headers de seguridad
+// Headers de seguridad y CORS adicionales
 app.use((req, res, next) => {
+  // Headers CORS adicionales para compatibilidad con Apache
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+    'http://146.83.198.35:1211',
+    'http://146.83.198.35:1212',
+    'http://146.83.198.35',
+    'https://146.83.198.35:1211',
+    'https://146.83.198.35:1212',
+    'https://146.83.198.35',
+    process.env.FRONTEND_URL
+  ].filter(Boolean);
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
   res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Expose-Headers', 'Authorization');
+  
+  // Headers de seguridad
   res.header('X-Content-Type-Options', 'nosniff');
   res.header('X-Frame-Options', 'DENY');
   res.header('X-XSS-Protection', '1; mode=block');
+  
+  // Manejar preflight OPTIONS requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
   next();
 });
 
