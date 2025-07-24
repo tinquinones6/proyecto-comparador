@@ -2,16 +2,17 @@
   "apps": [{
     "name": "repauto-backend",
     "script": "src/index.js",
-    "cwd": "./backend",
+    "cwd": "/home/mquinones/repauto-backend",
     "instances": 1,
     "exec_mode": "fork",
     "env": {
       "NODE_ENV": "production",
-      "PORT": 80
+      "PORT": 80,
+      "FRONTEND_URL": "http://146.83.198.35:443"
     },
-    "error_file": "./logs/err.log",
-    "out_file": "./logs/out.log",
-    "log_file": "./logs/combined.log",
+    "error_file": "/var/log/pm2/repauto-backend-error.log",
+    "out_file": "/var/log/pm2/repauto-backend-out.log",
+    "log_file": "/var/log/pm2/repauto-backend.log",
     "time": true,
     "max_restarts": 10,
     "min_uptime": "10s",

@@ -12,9 +12,8 @@ const getApiUrl = () => {
   
   // Si estamos en producción (IP específica)
   if (hostname === '146.83.198.35') {
-    // Si el frontend está en puerto 1212, el backend debería estar en puerto 3000
-    // Si el frontend está en puerto 1211, el backend debería estar en puerto 3000
-    return `${protocol}//${hostname}:3000/api`;
+    // El backend está corriendo en puerto 80
+    return `${protocol}//${hostname}/api`;
   }
   
   // Si estamos en desarrollo local
