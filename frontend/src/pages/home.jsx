@@ -1,282 +1,278 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../config/api';
-import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
-import CommentForm from '../components/CommentForm';
+import { 
+  FaArrowRight, 
+  FaBoxes, 
+  FaStore, 
+  FaTags,
+  FaCog,
+  FaCar,
+  FaBolt,
+  FaTools,
+  FaWrench,
+  FaSnowflake,
+  FaFilter,
+  FaWind,
+  FaPalette,
+  FaStop
+} from 'react-icons/fa';
+import QuickFilters from '../components/QuickFilters';
+import CategoryStats from '../components/CategoryStats';
+import '../styles/home.css';
+import '../styles/category.css';
 
 function Home() {
-  const [repuestos, setRepuestos] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
-  const [filtro, setFiltro] = useState({ nombre: '', marca: '', modelo: '' });
-  const [comparar, setComparar] = useState([]);
-  const [mostrarFiltros, setMostrarFiltros] = useState(false);
-  const [searchExpanded, setSearchExpanded] = useState(false);
-  const [marcas, setMarcas] = useState([]);
-  const [modelos, setModelos] = useState([]);
+  const [estadisticas, setEstadisticas] = useState({
+    totalRepuestos: 0,
+    totalTiendas: 0,
+    categoriaConMasProductos: '',
+    repuestosRecientes: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Función para obtener el icono apropiado según la categoría
+  const getCategoryIcon = (categoria) => {
+    switch (categoria) {
+      case 'Motor':
+        return <FaCog />;
+      case 'Frenos':
+        return <FaStop />;
+      case 'Carrocería':
+        return <FaCar />;
+      case 'Sistema eléctrico':
+        return <FaBolt />;
+      case 'Suspensión y dirección':
+        return <FaTools />;
+      case 'Transmisión':
+        return <FaWrench />;
+      case 'Enfriamiento':
+        return <FaSnowflake />;
+      case 'Filtros':
+        return <FaFilter />;
+      case 'Sistema de escape':
+        return <FaWind />;
+      case 'Accesorios':
+        return <FaPalette />;
+      default:
+        return <FaBoxes />;
+    }
+  };
+
+  // Función para obtener la descripción específica de cada categoría
+  const getCategoryDescription = (categoria) => {
+    switch (categoria) {
+      case 'Motor':
+        return 'Repuestos para el motor y sistemas de combustión';
+      case 'Frenos':
+        return 'Sistemas de frenado y componentes de seguridad';
+      case 'Carrocería':
+        return 'Elementos externos y estéticos del vehículo';
+      case 'Sistema eléctrico':
+        return 'Componentes eléctricos y electrónicos';
+      case 'Suspensión y dirección':
+        return 'Sistemas de manejo y comodidad de conducción';
+      case 'Transmisión':
+        return 'Componentes de transmisión y embrague';
+      case 'Enfriamiento':
+        return 'Sistema de refrigeración del motor';
+      case 'Filtros':
+        return 'Filtros de aire, aceite y combustible';
+      case 'Sistema de escape':
+        return 'Componentes del sistema de escape';
+      case 'Accesorios':
+        return 'Complementos y accesorios para tu vehículo';
+      default:
+        return 'Página dedicada con comparación';
+    }
+  };
 
   useEffect(() => {
-    fetchCategorias();
+    fetchHomeData();
   }, []);
 
-  useEffect(() => {
-    fetchRepuestos();
-  }, [categoriaSeleccionada]);
-
-  useEffect(() => {
-    if (repuestos.length > 0) {
-      const uniqueMarcas = [...new Set(repuestos.map(r => r.marca))];
-      const uniqueModelos = [...new Set(repuestos.map(r => r.modelo))];
-      setMarcas(uniqueMarcas);
-      setModelos(uniqueModelos);
-    }
-  }, [repuestos]);
-
-  const fetchCategorias = async () => {
+  const fetchHomeData = async () => {
     try {
-      const res = await api.get('/repuestos/categorias');
-      setCategorias(res.data);
-    } catch (err) {
-      console.error('Error al obtener categorías', err);
-    }
-  };
-
-  const fetchRepuestos = async () => {
-    try {
-      const res = await api.get('/repuestos', {
-        params: categoriaSeleccionada ? { categoria: categoriaSeleccionada } : {}
+      setLoading(true);
+      
+      // Obtener categorías
+      const categoriasRes = await api.get('/repuestos/categorias');
+      setCategorias(categoriasRes.data);
+      
+      // Obtener todos los repuestos para estadísticas
+      const repuestosRes = await api.get('/repuestos');
+      const todosRepuestos = repuestosRes.data;
+      
+      // Calcular estadísticas
+      const totalRepuestos = todosRepuestos.length;
+      const tiendas = [...new Set(todosRepuestos.map(r => r.tienda))];
+      const totalTiendas = tiendas.length;
+      
+      // Categoría con más productos
+      let categoriaConMasProductos = '';
+      if (todosRepuestos.length > 0) {
+        const categoriasCantidad = {};
+        todosRepuestos.forEach(r => {
+          if (r.categoria) {
+            categoriasCantidad[r.categoria] = (categoriasCantidad[r.categoria] || 0) + 1;
+          }
+        });
+        categoriaConMasProductos = Object.keys(categoriasCantidad).reduce((a, b) => 
+          categoriasCantidad[a] > categoriasCantidad[b] ? a : b, ''
+        );
+      }
+      
+      // Repuestos más recientes (últimos 3)
+      const repuestosRecientes = todosRepuestos.slice(-3).reverse();
+      
+      setEstadisticas({
+        totalRepuestos,
+        totalTiendas,
+        categoriaConMasProductos,
+        repuestosRecientes
       });
-      setRepuestos(res.data);
+      
     } catch (err) {
-      console.error('Error al obtener repuestos', err);
+      console.error('Error al obtener datos del home', err);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const agregarAComparacion = (repuesto) => {
-    if (comparar.length >= 3) return;
-    if (comparar.find(r => r.id === repuesto.id)) return;
-    setComparar([...comparar, repuesto]);
-  };
-
-  const quitarDeComparacion = (id) => {
-    setComparar(comparar.filter(r => r.id !== id));
-  };
-
-  const limpiarComparacion = () => setComparar([]);
-
-  const limpiarFiltros = () => {
-    setFiltro({ nombre: '', marca: '', modelo: '' });
-    setCategoriaSeleccionada('');
-  };
-
-  const filtrarRepuestos = repuestos.filter((r) =>
-    r.nombre.toLowerCase().includes(filtro.nombre.toLowerCase()) &&
-    (filtro.marca ? r.marca === filtro.marca : true) &&
-    (filtro.modelo ? r.modelo === filtro.modelo : true)
-  );
 
   const imagenDefecto = 'https://via.placeholder.com/300x160.png?text=Sin+imagen';
 
+  if (loading) {
+    return (
+      <div className="home-content">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Cargando información del sistema...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="home-content">
-      {/* Estadísticas */}
+      {/* Header principal */}
+      <div className="home-header">
+        <h1 className="home-title">TuRepuesto.cl - Comparador de Repuestos Automotrices</h1>
+        <p className="home-subtitle">
+          Encuentra los mejores precios y compara repuestos de diferentes tiendas
+        </p>
+      </div>
+
+      {/* Estadísticas generales */}
       <div className="stats-grid">
         <div className="stats-card">
-          <h3>Total Productos</h3>
-          <div className="number">{repuestos.length}</div>
-          <div className="label">En inventario</div>
-        </div>
-        <div className="stats-card">
-          <h3>En Comparación</h3>
-          <div className="number">{comparar.length}/3</div>
-          <div className="label">Productos seleccionados</div>
+          <h3>Total de Repuestos</h3>
+          <div className="number">{estadisticas.totalRepuestos}</div>
+          <div className="label">En nuestro catálogo</div>
         </div>
         <div className="stats-card">
           <h3>Categorías</h3>
           <div className="number">{categorias.length}</div>
-          <div className="label">Disponibles</div>
+          <div className="label">Diferentes categorías</div>
+        </div>
+        <div className="stats-card">
+          <h3>Tiendas</h3>
+          <div className="number">{estadisticas.totalTiendas}</div>
+          <div className="label">Tiendas asociadas</div>
         </div>
       </div>
 
-      {/* Selector de categorías */}
-      <div className="categories-section">
-        <h2>Categorías de Repuestos</h2>
-        <div className="categories-grid">
-          <button
-            className={`category-button ${!categoriaSeleccionada ? 'active' : ''}`}
-            onClick={() => setCategoriaSeleccionada('')}
-          >
-            Todos
-          </button>
-          {categorias.map((cat) => (
-            <button
-              key={cat}
-              className={`category-button ${categoriaSeleccionada === cat ? 'active' : ''}`}
-              onClick={() => setCategoriaSeleccionada(cat)}
+      {/* Categorías principales */}
+      <div className="categories-main-section">
+        <h2>Explora por Categoría</h2>
+        <p className="categories-description">
+          Cada categoría tiene su propia página dedicada donde puedes ver todos los repuestos disponibles, 
+          filtrar por marca y modelo, y comparar hasta 3 productos simultáneamente para encontrar la mejor opción.
+        </p>
+        
+        <div className="categories-grid-main">
+          {categorias.map((categoria) => (
+            <Link 
+              key={categoria} 
+              to={`/categoria/${encodeURIComponent(categoria)}`}
+              className="category-card"
             >
-              {cat}
-            </button>
+              <div className="category-card-icon">
+                {getCategoryIcon(categoria)}
+              </div>
+              <div className="category-card-content">
+                <h3>{categoria}</h3>
+                <p>{getCategoryDescription(categoria)}</p>
+                <div className="category-card-arrow">
+                  <FaArrowRight />
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
 
-      {/* Barra de búsqueda y filtros */}
-      <div className="search-container">
-        <div className={`search-wrapper ${searchExpanded ? 'expanded' : ''}`}>
-          <FaSearch className="search-icon" />
-          <input
-            type="text"
-            className="search-bar"
-            placeholder="Buscar repuestos..."
-            value={filtro.nombre}
-            onChange={(e) => setFiltro({ ...filtro, nombre: e.target.value })}
-            onFocus={() => setSearchExpanded(true)}
-            onBlur={() => setSearchExpanded(false)}
-          />
-          {filtro.nombre && (
-            <button 
-              className="clear-search" 
-              onClick={() => setFiltro({ ...filtro, nombre: '' })}
-            >
-              <FaTimes />
-            </button>
-          )}
-        </div>
-        <button 
-          className={`filter-button ${mostrarFiltros ? 'active' : ''}`}
-          onClick={() => setMostrarFiltros(!mostrarFiltros)}
-        >
-          <FaFilter />
-          <span>Filtros</span>
-        </button>
-      </div>
+      {/* Tipos más buscados */}
+      <QuickFilters />
 
-      {/* Panel de filtros */}
-      {mostrarFiltros && (
-        <div className="filters-panel">
-          <div className="filters-content">
-            <div className="filter-group">
-              <label>Marca:</label>
-              <select
-                value={filtro.marca}
-                onChange={(e) => setFiltro({ ...filtro, marca: e.target.value })}
-              >
-                <option value="">Todas las marcas</option>
-                {marcas.map((marca) => (
-                  <option key={marca} value={marca}>{marca}</option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Modelo:</label>
-              <select
-                value={filtro.modelo}
-                onChange={(e) => setFiltro({ ...filtro, modelo: e.target.value })}
-              >
-                <option value="">Todos los modelos</option>
-                {modelos.map((modelo) => (
-                  <option key={modelo} value={modelo}>{modelo}</option>
-                ))}
-              </select>
-            </div>
-            <button className="button-secondary" onClick={limpiarFiltros}>
-              Limpiar filtros
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Estadísticas por categoría */}
+      <CategoryStats />
 
-      {/* Tabla de comparación */}
-      {comparar.length > 0 && (
-        <div className="comparison-section">
-          <h2>Comparación de Repuestos</h2>
-          <div className="comparison-grid">
-            {comparar.map((r) => (
-              <div key={r.id} className="product-card" style={{background: 'var(--comparison-background)'}}>
+      {/* Repuestos recientes */}
+      {estadisticas.repuestosRecientes.length > 0 && (
+        <div className="recent-products-section">
+          <h2>Productos Recientes</h2>
+          <p>Los últimos repuestos agregados a nuestro catálogo</p>
+          
+          <div className="recent-products-grid">
+            {estadisticas.repuestosRecientes.map((repuesto) => (
+              <div key={repuesto.id} className="recent-product-card">
                 <img
-                  src={r.imagen_url || imagenDefecto}
-                  alt={r.nombre}
-                  className="product-image"
+                  src={repuesto.imagen_url || imagenDefecto}
+                  alt={repuesto.nombre}
+                  className="recent-product-image"
                 />
-                <div className="product-info">
-                  <h3>{r.nombre}</h3>
-                  <p className="price">{r.precio.toLocaleString('es-CL')} CLP</p>
-                  <p><strong>Marca:</strong> {r.marca}</p>
-                  <p><strong>Modelo:</strong> {r.modelo}</p>
-                  <p><strong>Tienda:</strong> {r.tienda}</p>
-                  <div className="product-actions">
-                    <button
-                      className="button-danger"
-                      onClick={() => quitarDeComparacion(r.id)}
-                    >
-                      Quitar
-                    </button>
-                    <a
-                      href={r.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="button-primary"
-                    >
-                      Comprar
-                    </a>
+                <div className="recent-product-info">
+                  <h4>{repuesto.nombre}</h4>
+                  <p className="recent-product-category">{repuesto.categoria}</p>
+                  <div className="recent-product-details">
+                    <span className="recent-product-brand">{repuesto.marca}</span>
+                    <span className="recent-product-price">
+                      {repuesto.precio.toLocaleString('es-CL')} CLP
+                    </span>
                   </div>
-                  <CommentForm sparepartId={r.id} />
+                  <Link 
+                    to={`/categoria/${encodeURIComponent(repuesto.categoria)}`}
+                    className="recent-product-link"
+                  >
+                    Ver en {repuesto.categoria} <FaArrowRight />
+                  </Link>
                 </div>
               </div>
             ))}
           </div>
-          <button 
-            className="button-secondary" 
-            onClick={limpiarComparacion}
-            style={{display: 'block', margin: '2rem auto 0'}}
-          >
-            Limpiar comparación
-          </button>
         </div>
       )}
 
-      {/* Lista de repuestos */}
-      <div className="inventory-table-container">
-        <table className="inventory-table">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Marca</th>
-              <th>Modelo</th>
-              <th>Precio</th>
-              <th>Tienda</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtrarRepuestos.map((r) => (
-              <tr key={r.id}>
-                <td>
-                  <div className="product-cell">
-                    <img
-                      src={r.imagen_url || imagenDefecto}
-                      alt={r.nombre}
-                      className="product-thumbnail"
-                    />
-                    <span>{r.nombre}</span>
-                  </div>
-                </td>
-                <td>{r.marca}</td>
-                <td>{r.modelo}</td>
-                <td className="price">{r.precio} CLP</td>
-                <td>{r.tienda}</td>
-                <td>
-                  <button
-                    className="button-primary"
-                    onClick={() => agregarAComparacion(r)}
-                    disabled={comparar.find((c) => c.id === r.id) || comparar.length >= 3}
-                  >
-                    Comparar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Sección de información */}
+      <div className="info-section">
+        <div className="info-cards">
+          <div className="info-card">
+            <FaStore className="info-icon" />
+            <h3>Múltiples Tiendas</h3>
+            <p>Comparamos precios de diferentes tiendas para encontrar las mejores ofertas</p>
+          </div>
+          <div className="info-card">
+            <FaTags className="info-icon" />
+            <h3>Comparación Fácil</h3>
+            <p>Compara hasta 3 repuestos simultáneamente para tomar la mejor decisión</p>
+          </div>
+          <div className="info-card">
+            <FaBoxes className="info-icon" />
+            <h3>Amplio Catálogo</h3>
+            <p>Miles de repuestos organizados por categorías para facilitar tu búsqueda</p>
+          </div>
+        </div>
       </div>
     </div>
   );

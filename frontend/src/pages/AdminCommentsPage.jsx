@@ -1,12 +1,11 @@
 import React from 'react';
 import AdminComments from '../components/AdminComments';
+import '../styles/admin-new.css';
 
 const AdminCommentsPage = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="py-8">
-        <AdminComments />
-      </div>
+    <div className="admin-container">
+      <AdminComments />
     </div>
   );
 };

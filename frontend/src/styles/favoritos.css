@@ -1,0 +1,578 @@
+/* Contenedor principal de favoritos */
+.favoritos-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header de favoritos */
+.favoritos-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.favoritos-icon {
+  font-size: 1.8rem;
+  color: #dc3545;
+}
+
+.favoritos-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.favoritos-count {
+  background: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* Estado de carga */
+.favoritos-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #dc3545;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.favoritos-loading p {
+  color: #6c757d;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Estado vacío */
+.favoritos-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: #dee2e6;
+  margin-bottom: 20px;
+}
+
+.favoritos-empty h3 {
+  color: #495057;
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+}
+
+.favoritos-empty p {
+  color: #6c757d;
+  font-size: 1rem;
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Grid de favoritos */
+.favoritos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Card de favorito - sin imagen */
+.favorito-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+  position: relative;
+  padding: 24px;
+}
+
+.favorito-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Área de imagen/header - ahora solo para el botón de eliminar */
+.favorito-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.favorito-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.favorito-remove-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.favorito-remove-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Contenido del favorito - sin imagen */
+.favorito-content {
+  padding: 0;
+}
+
+.favorito-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.favorito-details {
+  margin-bottom: 20px;
+}
+
+.favorito-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.favorito-detail:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.favorito-label {
+  font-weight: 500;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.favorito-value {
+  color: #333;
+  font-weight: 500;
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favorito-price {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.favorito-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.favorito-consultar-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.favorito-consultar-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.favorito-consultar-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.favorito-consultar-btn:active {
+  transform: translateY(0);
+}
+
+/* Nuevo botón principal de consultar */
+.favorito-consultar-btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+  margin-top: 8px;
+}
+
+.favorito-consultar-btn-primary:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+}
+
+.favorito-consultar-btn-primary:active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .favoritos-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .favorito-card {
+    margin: 0 10px;
+  }
+  
+  .favoritos-container {
+    padding: 15px;
+  }
+  
+  .favorito-content {
+    padding: 15px;
+  }
+  
+  .favorito-detail {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .favorito-value {
+    max-width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .favoritos-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .favorito-image {
+    height: 150px;
+  }
+  
+  .favorito-consultar-btn {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+  
+  .favorito-consultar-btn-primary {
+    padding: 14px 18px;
+    font-size: 1rem;
+  }
+}
+
+.favorito-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.favorito-value {
+  color: #6c757d;
+  font-size: 0.95rem;
+  text-align: right;
+  max-width: 60%;
+  word-wrap: break-word;
+}
+
+/* Descripción especial */
+.favorito-descripcion {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #e74c3c;
+}
+
+.favorito-descripcion .favorito-label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.favorito-descripcion .favorito-value {
+  color: #495057;
+  line-height: 1.5;
+  text-align: left;
+  max-width: 100%;
+}
+
+/* Precio destacado */
+.favorito-precio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, #e8f5e8, #d4edda);
+  border-radius: 8px;
+  border: 1px solid #c3e6cb;
+}
+
+.precio-label {
+  font-weight: 600;
+  color: #155724;
+  font-size: 1rem;
+}
+
+.precio-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #155724;
+}
+
+/* Fecha */
+.favorito-fecha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.fecha-label {
+  font-size: 0.85rem;
+  color: #adb5bd;
+  font-weight: 500;
+}
+
+.fecha-value {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Acciones del favorito */
+.favorito-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.favorito-btn {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.favorito-btn-view {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.favorito-btn-view:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: translateY(-2px);
+}
+
+.favorito-btn-contact {
+  background: linear-gradient(135deg, #27ae60, #229954);
+  color: white;
+}
+
+.favorito-btn-contact:hover {
+  background: linear-gradient(135deg, #229954, #1e7e34);
+  transform: translateY(-2px);
+}
+
+.favorito-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .favoritos-container {
+    padding: 1rem;
+  }
+
+  .favoritos-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .favoritos-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .favoritos-count {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+
+  .favoritos-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .favorito-card {
+    padding: 1rem;
+  }
+
+  .favorito-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .favorito-nombre {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .favorito-remove-btn {
+    align-self: flex-end;
+  }
+
+  .favorito-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .favorito-value {
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .favorito-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .favorito-btn {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* Animaciones adicionales */
+.favorito-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Botón flotante de favoritos (para usar en otras páginas) */
+.floating-favorite-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.floating-favorite-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}

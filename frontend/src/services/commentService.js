@@ -49,16 +49,17 @@ export const commentService = {
   },
 
   // Actualizar estado del comentario (admin)
-  updateCommentStatus: async (commentId, status) => {
+  updateCommentStatus: async (commentId, status, adminResponse = null) => {
     try {
       const response = await axios.patch(
         `${COMMENTS_URL}/${commentId}`,
-        { status },
+        { status, adminResponse },
         getAuthHeaders()
       );
-      return response.data;
+      return { success: true, data: response.data };
     } catch (error) {
-      throw error.response?.data || error.message;
+      console.error('Error en updateCommentStatus:', error);
+      throw error.response?.data || { success: false, message: error.message };
     }
   },
 

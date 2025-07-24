@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { commentService } from '../services/commentService';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { FaComments, FaEdit, FaTrash, FaEye, FaCheckCircle, FaCheck } from 'react-icons/fa';
 
 const AdminComments = () => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadComments();
-  }, []);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
+      setLoading(true);
       const data = await commentService.getAllComments();
       setComments(data);
     } catch (error) {
@@ -21,26 +20,93 @@ const AdminComments = () => {
       if (error.message === 'Token inválido o expirado') {
         toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
         navigate('/login');
-      } else {
-        toast.error('Error al cargar los comentarios: ' + error.message);
+      } else if (!toast.isActive('comments-error')) {
+        toast.error('Error al cargar los comentarios', { toastId: 'comments-error' });
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
-  const handleResolve = async (commentId) => {
-    if (!window.confirm('¿Estás seguro de que deseas marcar este comentario como resuelto?')) {
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
+
+  const handleMarkAsReviewed = async (commentId) => {
+    if (!window.confirm('¿Estás seguro de que deseas marcar este comentario como revisado?')) {
       return;
     }
 
     try {
+      setIsUpdating(true);
+      
+      // Primero descartar cualquier toast previo para este comentario
+      toast.dismiss(`reviewed-${commentId}`);
+      toast.dismiss(`error-reviewed-${commentId}`);
+      
+      const response = await commentService.updateCommentStatus(commentId, 'reviewed');
+      if (response.success) {
+        // Actualizar el estado local sin recargar toda la lista
+        setComments(prevComments => 
+          prevComments.map(comment => 
+            comment.id === commentId 
+              ? { ...comment, estado: 'reviewed' }
+              : comment
+          )
+        );
+        toast.success('Comentario marcado como revisado', { 
+          toastId: `reviewed-${commentId}`,
+          autoClose: 3000
+        });
+      } else {
+        toast.error('No se pudo actualizar el comentario', { 
+          toastId: `error-reviewed-${commentId}`,
+          autoClose: 5000
+        });
+      }
+    } catch (error) {
+      console.error('Error al marcar como revisado:', error);
+      if (error.message === 'Token inválido o expirado') {
+        toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        navigate('/login');
+      } else {
+        toast.error('Error al actualizar el comentario', { 
+          toastId: `error-reviewed-${commentId}`,
+          autoClose: 5000
+        });
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleResolve = async (commentId) => {
+    if (!window.confirm('¿Estás seguro de que deseas marcar este comentario como resuelto y eliminarlo?')) {
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+      
+      // Descartar toasts previos para este comentario
+      toast.dismiss(`resolved-${commentId}`);
+      toast.dismiss(`error-resolved-${commentId}`);
+      
       const response = await commentService.deleteComment(commentId);
       if (response.success) {
-        toast.success('Comentario resuelto y eliminado');
-        loadComments(); // Recargar la lista completa para asegurar sincronización
+        // Actualizar el estado local removiendo el comentario
+        setComments(prevComments => 
+          prevComments.filter(comment => comment.id !== commentId)
+        );
+        toast.success('Comentario resuelto y eliminado', { 
+          toastId: `resolved-${commentId}`,
+          autoClose: 3000
+        });
       } else {
-        toast.error('No se pudo eliminar el comentario');
+        toast.error('No se pudo eliminar el comentario', { 
+          toastId: `error-resolved-${commentId}`,
+          autoClose: 5000
+        });
       }
     } catch (error) {
       console.error('Error al resolver comentario:', error);
@@ -48,14 +114,27 @@ const AdminComments = () => {
         toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
         navigate('/login');
       } else {
-        toast.error('Error al resolver el comentario: ' + error.message);
+        toast.error('Error al resolver el comentario', { 
+          toastId: `error-resolved-${commentId}`,
+          autoClose: 5000
+        });
       }
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const handleReview = (sparepartId) => {
-    // Redirigir al panel de administración
-    navigate('/admin');
+  const handleReview = (sparepartId, repuestoNombre) => {
+    // Mostrar confirmación antes de redirigir
+    const confirmar = window.confirm(
+      `¿Deseas ir al formulario de edición para corregir el repuesto "${repuestoNombre}"?`
+    );
+    
+    if (confirmar) {
+      // Redirigir directamente al formulario de edición del repuesto con parámetro de origen
+      navigate(`/admin/repuesto/${sparepartId}?from=comments`);
+      // Remover el toast.info para evitar notificaciones excesivas
+    }
   };
 
   if (loading) {
@@ -63,75 +142,98 @@ const AdminComments = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Gestión de Comentarios</h2>
-      
-      {comments.length === 0 ? (
-        <div className="text-center p-4 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">No hay comentarios para mostrar</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg overflow-hidden">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Repuesto</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mensaje</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {comments.map((comment) => (
-                <tr key={comment.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(comment.fecha_creacion).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {comment.repuesto_nombre || comment.sparepartId}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {comment.tipo === 'price' ? 'Precio' :
-                     comment.tipo === 'image' ? 'Imagen' :
-                     comment.tipo === 'description' ? 'Descripción' : 'Otro'}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
-                    {comment.mensaje}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      comment.estado === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      comment.estado === 'reviewed' ? 'bg-blue-100 text-blue-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {comment.estado === 'pending' ? 'Pendiente' :
-                       comment.estado === 'reviewed' ? 'Revisado' : 'Resuelto'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-4">
+    <div className="admin-content">
+      <div className="admin-section">
+        <h2 className="admin-section-title">
+          <FaComments /> Gestión de Comentarios
+        </h2>
+        
+        {comments.length === 0 ? (
+          <div className="admin-empty-state">
+            <p>No hay comentarios para mostrar</p>
+          </div>
+        ) : (
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Repuesto</th>
+                  <th>Tipo</th>
+                  <th>Mensaje</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comments.map((comment) => (
+                  <tr key={comment.id}>
+                    <td>
+                      {new Date(comment.fecha_creacion).toLocaleDateString()}
+                    </td>
+                    <td className="table-cell-name">
+                      {comment.repuesto_nombre || `Repuesto ID: ${comment.repuesto_id}`}
+                    </td>
+                    <td>
+                      <span className={`comment-type-indicator comment-type-${comment.tipo}`}>
+                        {comment.tipo === 'price' ? 'Precio' :
+                         comment.tipo === 'image' ? 'Imagen' :
+                         comment.tipo === 'description' ? 'Descripción' : 'Otro'}
+                      </span>
+                    </td>
+                    <td className="table-cell-comment-message" title={comment.mensaje}>
+                      {comment.mensaje}
+                    </td>
+                    <td>
+                      <span className={`comment-status comment-status-${comment.estado}`}>
+                        {comment.estado === 'pending' ? 'Pendiente' :
+                         comment.estado === 'reviewed' ? 'Revisado' : 'Resuelto'}
+                      </span>
+                    </td>
+                    <td className="table-cell-actions">
                       <button
-                        onClick={() => handleReview(comment.sparepartId)}
-                        className="text-blue-600 hover:text-blue-900 font-medium"
+                        onClick={() => handleReview(comment.repuesto_id, comment.repuesto_nombre)}
+                        className="admin-btn-icon admin-btn-edit"
+                        title="Editar producto para corregir error"
+                        disabled={isUpdating}
                       >
-                        Revisar producto
+                        <FaEdit />
                       </button>
+                      {comment.estado === 'pending' && (
+                        <button
+                          onClick={() => handleMarkAsReviewed(comment.id)}
+                          className="admin-btn-icon admin-btn-review"
+                          title="Marcar como revisado"
+                          disabled={isUpdating}
+                        >
+                          <FaEye />
+                        </button>
+                      )}
+                      {comment.estado === 'reviewed' && (
+                        <div
+                          className="admin-btn-icon admin-btn-success"
+                          title="Comentario revisado"
+                          style={{ cursor: 'default' }}
+                        >
+                          <FaCheck />
+                        </div>
+                      )}
                       <button
                         onClick={() => handleResolve(comment.id)}
-                        className="text-green-600 hover:text-green-900 font-medium"
+                        className="admin-btn-icon admin-btn-delete"
+                        title="Marcar como resuelto y eliminar"
+                        disabled={isUpdating}
                       >
-                        Resolver
+                        <FaTrash />
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

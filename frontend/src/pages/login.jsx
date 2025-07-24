@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../config/api';
 import { FaUser, FaLock } from 'react-icons/fa';
 import '../styles/login.css';
 
 function Login() {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [credentials, setCredentials] = useState({ correo: '', contrasena: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>Comparador de Repuestos</h2>
+        <h2>TuRepuesto.cl</h2>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <div className="input-icon">
@@ -32,8 +32,8 @@ function Login() {
               <input
                 type="email"
                 placeholder="Correo electrónico"
-                value={credentials.email}
-                onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                value={credentials.correo}
+                onChange={(e) => setCredentials({ ...credentials, correo: e.target.value })}
                 required
               />
             </div>
@@ -44,8 +44,8 @@ function Login() {
               <input
                 type="password"
                 placeholder="Contraseña"
-                value={credentials.password}
-                onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                value={credentials.contrasena}
+                onChange={(e) => setCredentials({ ...credentials, contrasena: e.target.value })}
                 required
               />
             </div>
@@ -55,6 +55,22 @@ function Login() {
             Iniciar Sesión
           </button>
         </form>
+
+        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+          <p style={{ color: 'var(--text-secondary)' }}>
+            ¿No tienes una cuenta?{' '}
+            <Link 
+              to="/register" 
+              style={{ 
+                color: 'var(--primary-color)', 
+                textDecoration: 'none',
+                fontWeight: '600'
+              }}
+            >
+              Regístrate aquí
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

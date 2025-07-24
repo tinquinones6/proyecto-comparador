@@ -1,0 +1,463 @@
+/* Estilos para el formulario de comentarios - Diseño moderno y minimalista */
+.comment-form {
+  background: var(--card-background, #ffffff) !important;
+  border: 1px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius-lg, 12px) !important;
+  margin: 3rem 0 1.5rem 0 !important; /* Aumentado el margen superior para mayor separación de los botones */
+  box-shadow: var(--box-shadow, 0 1px 3px rgba(0, 0, 0, 0.1)) !important;
+  transition: all 0.3s ease !important;
+  overflow: hidden !important;
+  max-width: 100% !important;
+  position: relative !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Agregamos una línea sutil superior para separación visual */
+.comment-form::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -1rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 60px !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, transparent, var(--border-color, #e5e7eb), transparent) !important;
+  opacity: 0.6 !important;
+}
+
+.comment-form:hover {
+  box-shadow: var(--box-shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.1)) !important;
+  border-color: rgba(244, 67, 54, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+.comment-form-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  padding: 1.25rem 1.5rem !important;
+  background: linear-gradient(135deg, 
+    rgba(244, 67, 54, 0.08) 0%, 
+    rgba(244, 67, 54, 0.03) 100%) !important;
+  border-bottom: 1px solid rgba(244, 67, 54, 0.12) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+}
+
+.comment-form-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--danger-color), #ff5722, var(--danger-color));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.comment-form:hover .comment-form-header::before {
+  opacity: 1;
+}
+
+.comment-form-header:hover {
+  background: linear-gradient(135deg, 
+    rgba(244, 67, 54, 0.12) 0%, 
+    rgba(244, 67, 54, 0.06) 100%);
+  transform: translateY(-1px);
+}
+
+.comment-form h3 {
+  color: var(--text-color, #1f2937) !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  transition: color 0.3s ease !important;
+}
+
+.comment-form-header:hover h3 {
+  color: var(--danger-color, #dc2626) !important;
+}
+
+.comment-form h3::before {
+  content: '' !important;
+  font-size: 1.2rem !important;
+  filter: drop-shadow(0 2px 4px rgba(244, 67, 54, 0.2)) !important;
+  animation: pulse-warning 2s infinite !important;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { 
+    transform: scale(1);
+    filter: drop-shadow(0 2px 4px rgba(244, 67, 54, 0.2));
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(244, 67, 54, 0.3));
+  }
+}
+
+/* Icono de flecha mejorado */
+.comment-form-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: rgba(244, 67, 54, 0.05) !important;
+  border: 1px solid rgba(244, 67, 54, 0.1) !important;
+}
+
+.comment-form-header:hover .comment-form-toggle {
+  background: rgba(244, 67, 54, 0.15) !important;
+  border-color: rgba(244, 67, 54, 0.2) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2) !important;
+}
+
+.comment-form-header svg {
+  transition: all 0.3s ease;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.comment-form-header:hover svg {
+  color: var(--danger-color);
+  transform: scale(1.1);
+}
+
+/* Formulario expandido con animación mejorada */
+.comment-form form {
+  padding: 2rem !important;
+  background: var(--card-background, #ffffff) !important;
+  animation: slide-down 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  border-top: 1px solid rgba(244, 67, 54, 0.1) !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@keyframes slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    max-height: 0;
+    padding: 0 2rem;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 400px;
+    padding: 2rem;
+  }
+}
+
+.comment-form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.comment-form-group:last-of-type {
+  margin-bottom: 2rem;
+}
+
+.comment-form label {
+  display: block;
+  color: var(--text-color, #1f2937);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  position: relative;
+  padding-left: 0.5rem;
+}
+
+.comment-form label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(135deg, var(--danger-color, #dc2626), #ff5722);
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+.comment-form select,
+.comment-form textarea {
+  width: 100% !important;
+  padding: 1rem !important;
+  border: 2px solid var(--border-color, #e5e7eb) !important;
+  border-radius: var(--border-radius, 8px) !important;
+  background: var(--card-background, #ffffff) !important;
+  color: var(--text-color, #1f2937) !important;
+  font-size: 0.95rem !important;
+  font-family: inherit !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  outline: none !important;
+  resize: vertical !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+.comment-form select:focus,
+.comment-form textarea:focus {
+  border-color: var(--danger-color, #dc2626);
+  box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.1);
+  transform: translateY(-2px);
+  background: rgba(244, 67, 54, 0.02);
+}
+
+.comment-form select:hover,
+.comment-form textarea:hover {
+  border-color: rgba(244, 67, 54, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.1);
+}
+
+.comment-form select {
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--danger-color, #dc2626) 50%),
+                    linear-gradient(135deg, var(--danger-color, #dc2626) 50%, transparent 50%);
+  background-position: calc(100% - 20px) calc(1rem + 2px),
+                       calc(100% - 15px) calc(1rem + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.comment-form textarea {
+  min-height: 120px;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.comment-form textarea::placeholder {
+  color: var(--text-secondary, #6b7280);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* Botón de envío con diseño moderno */
+.comment-form-submit {
+  width: 100% !important;
+  padding: 1rem 2rem !important;
+  background: linear-gradient(135deg, var(--danger-color, #dc2626), #e53935, var(--danger-color, #dc2626)) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: var(--border-radius, 8px) !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  font-family: inherit !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3) !important;
+}
+
+.comment-form-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.comment-form-submit:hover::before {
+  left: 100%;
+}
+
+.comment-form-submit:hover {
+  background: linear-gradient(135deg, #d32f2f, #c62828, #d32f2f);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+  letter-spacing: 1.2px;
+}
+
+.comment-form-submit:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.comment-form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: linear-gradient(135deg, var(--text-secondary, #6b7280), #9e9e9e, var(--text-secondary, #6b7280));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: 1px;
+}
+
+/* Estados de carga mejorados */
+.comment-form-submit:disabled::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.comment-form-submit:disabled::after {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+  .comment-form {
+    margin: 2rem 0 1rem 0; /* Manteniendo separación en móvil */
+    border-radius: var(--border-radius);
+  }
+  
+  .comment-form-header {
+    padding: 1rem 1.25rem;
+  }
+  
+  .comment-form h3 {
+    font-size: 1rem;
+  }
+  
+  .comment-form h3::before {
+    font-size: 1.1rem;
+  }
+  
+  .comment-form form {
+    padding: 1.5rem;
+  }
+  
+  .comment-form select,
+  .comment-form textarea {
+    padding: 0.875rem;
+    font-size: 16px; /* Para evitar zoom en iOS */
+  }
+  
+  .comment-form-submit {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.8px;
+  }
+  
+  .comment-form-group {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .comment-form {
+    margin: 1.5rem 0 0.75rem 0; /* Separación menor pero visible en pantallas muy pequeñas */
+    border-radius: 8px;
+  }
+  
+  .comment-form-header {
+    padding: 0.875rem 1rem;
+  }
+  
+  .comment-form h3 {
+    font-size: 0.95rem;
+  }
+  
+  .comment-form h3::before {
+    font-size: 1rem;
+  }
+  
+  .comment-form form {
+    padding: 1.25rem;
+  }
+  
+  .comment-form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .comment-form label {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .comment-form-toggle {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .comment-form-submit {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.6px;
+  }
+}
+
+/* Efectos adicionales para mejor UX */
+.comment-form-group {
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.comment-form-group:focus-within {
+  transform: translateY(-2px);
+}
+
+.comment-form:focus-within {
+  border-color: rgba(244, 67, 54, 0.3);
+  box-shadow: 0 8px 30px rgba(244, 67, 54, 0.15);
+}
+
+/* Mejora la accesibilidad */
+.comment-form-header:focus {
+  outline: 2px solid var(--danger-color);
+  outline-offset: 2px;
+}
+
+.comment-form select:focus,
+.comment-form textarea:focus {
+  outline: none;
+}
+
+/* Animación de aparición */
+.comment-form {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

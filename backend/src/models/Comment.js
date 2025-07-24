@@ -17,7 +17,7 @@ const commentModel = {
         const query = `
             SELECT c.*, r.nombre as repuesto_nombre
             FROM comentarios c
-            JOIN repuestos r ON c.repuesto_id = r.id
+            JOIN repuestos r ON c.repuesto_id = r.id_repuesto
             WHERE c.repuesto_id = $1
             ORDER BY c.fecha_creacion DESC
         `;
@@ -30,7 +30,7 @@ const commentModel = {
         const query = `
             SELECT c.*, r.nombre as repuesto_nombre
             FROM comentarios c
-            JOIN repuestos r ON c.repuesto_id = r.id
+            JOIN repuestos r ON c.repuesto_id = r.id_repuesto
             ORDER BY c.fecha_creacion DESC
         `;
         const result = await pool.query(query);

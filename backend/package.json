@@ -2,8 +2,11 @@
   "name": "proyecto-comparador",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "prod": "NODE_ENV=production PORT=80 node src/index.js"
   },
   "keywords": [],
   "author": "",

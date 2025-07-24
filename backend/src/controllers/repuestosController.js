@@ -2,18 +2,22 @@ const {
     obtenerTodosLosRepuestos,
     obtenerRepuestoPorId,
     obtenerRepuestosPorCategoria,
+    obtenerRepuestosPorCategoriaYTipo,
     obtenerCategorias,
     agregarNuevoRepuesto,
     actualizarRepuesto,
-    eliminarRepuestoPorId
+    eliminarRepuestoPorId,
+    obtenerTiposPorCategoria
 } = require('../models/repuestoModel');
 
 // GET todos los repuestos
 const obtenerRepuestos = async (req, res) => {
-    const { categoria } = req.query;
+    const { categoria, tipo } = req.query;
     try {
         let repuestos;
-        if (categoria) {
+        if (categoria && tipo) {
+            repuestos = await obtenerRepuestosPorCategoriaYTipo(categoria, tipo);
+        } else if (categoria) {
             repuestos = await obtenerRepuestosPorCategoria(categoria);
         } else {
             repuestos = await obtenerTodosLosRepuestos();
@@ -53,9 +57,9 @@ const obtenerTodasCategorias = async (req, res) => {
 
 // POST nuevo repuesto
 const agregarRepuesto = async (req, res) => {
-    const { nombre, marca, modelo, precio, tienda, url, categoria } = req.body;
+    const { nombre, marca, modelo, precio, tienda, url, categoria, tipo } = req.body;
     try {
-        const nuevo = await agregarNuevoRepuesto(nombre, marca, modelo, precio, tienda, url, categoria);
+        const nuevo = await agregarNuevoRepuesto(nombre, marca, modelo, precio, tienda, url, categoria, tipo);
         res.json(nuevo);
     } catch (error) {
         console.error('Error al agregar repuesto:', error);
@@ -66,10 +70,10 @@ const agregarRepuesto = async (req, res) => {
 // PUT actualizar repuesto
 const editarRepuesto = async (req, res) => {
     const id = req.params.id;
-    const { nombre, marca, modelo, precio, tienda, url, categoria } = req.body;
+    const { nombre, marca, modelo, precio, tienda, url, categoria, tipo } = req.body;
 
     try {
-        const actualizado = await actualizarRepuesto(id, nombre, marca, modelo, precio, tienda, url, categoria);
+        const actualizado = await actualizarRepuesto(id, nombre, marca, modelo, precio, tienda, url, categoria, tipo);
         if (!actualizado) {
             return res.status(404).json({ error: 'Repuesto no encontrado' });
         }
@@ -96,11 +100,24 @@ const eliminarRepuesto = async (req, res) => {
     }
 };
 
+// GET tipos por categoría
+const obtenerTiposPorCategoriaController = async (req, res) => {
+    const { categoria } = req.params;
+    try {
+        const tipos = await obtenerTiposPorCategoria(categoria);
+        res.json(tipos);
+    } catch (error) {
+        console.error('Error al obtener tipos por categoría:', error);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+};
+
 module.exports = {
     obtenerRepuestos,
     obtenerRepuesto,
     obtenerTodasCategorias,
     agregarRepuesto,
     editarRepuesto,
-    eliminarRepuesto
+    eliminarRepuesto,
+    obtenerTiposPorCategoriaController
 };

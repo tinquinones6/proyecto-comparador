@@ -6,11 +6,13 @@ const {
     obtenerTodasCategorias,
     agregarRepuesto,
     editarRepuesto,
-    eliminarRepuesto
+    eliminarRepuesto,
+    obtenerTiposPorCategoriaController
 } = require('../controllers/repuestosController');
 
 router.get('/', obtenerRepuestos);
 router.get('/categorias', obtenerTodasCategorias);
+router.get('/tipos/:categoria', obtenerTiposPorCategoriaController);
 router.get('/:id', obtenerRepuesto);
 router.post('/', agregarRepuesto);
 router.put('/:id', editarRepuesto);
