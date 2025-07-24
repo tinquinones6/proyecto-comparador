@@ -27,9 +27,11 @@ const corsOptions = {
       'http://127.0.0.1:5173',      // Desarrollo local IP
       'http://146.83.198.35:1211',  // Producción Apache puerto 1211
       'http://146.83.198.35:1212',  // Producción Apache puerto 1212
+      'http://146.83.198.35:443',   // Producción Apache puerto 443
       'http://146.83.198.35',       // Producción sin puerto
       'https://146.83.198.35:1211', // HTTPS puerto 1211
       'https://146.83.198.35:1212', // HTTPS puerto 1212
+      'https://146.83.198.35:443',  // HTTPS puerto 443
       'https://146.83.198.35',      // HTTPS sin puerto
       process.env.FRONTEND_URL      // URL del frontend desde .env
     ].filter(Boolean); // Filtrar valores undefined/null
@@ -62,9 +64,11 @@ app.use((req, res, next) => {
     'http://127.0.0.1:5173',
     'http://146.83.198.35:1211',
     'http://146.83.198.35:1212',
+    'http://146.83.198.35:443',
     'http://146.83.198.35',
     'https://146.83.198.35:1211',
     'https://146.83.198.35:1212',
+    'https://146.83.198.35:443',
     'https://146.83.198.35',
     process.env.FRONTEND_URL
   ].filter(Boolean);
