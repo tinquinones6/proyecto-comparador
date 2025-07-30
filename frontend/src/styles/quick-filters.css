@@ -1,0 +1,217 @@
+/* Quick Filters Component Styles */
+.quick-filters-section {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.quick-filters-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.quick-filters-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0 0 0.5rem 0;
+}
+
+.quick-filters-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.quick-filters-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.quick-filters-loading .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.quick-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.quick-filter-card {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem;
+  background: white;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.quick-filter-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.15);
+}
+
+.quick-filter-icon {
+  width: 50px;
+  height: 50px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color), #0056b3);
+  color: white;
+  border-radius: 12px;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.quick-filter-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.quick-filter-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quick-filter-category {
+  font-size: 0.85rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.quick-filter-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.125rem;
+}
+
+.quick-filter-price {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.quick-filter-arrow {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  margin-left: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.quick-filter-card:hover .quick-filter-arrow {
+  transform: translateX(4px);
+}
+
+.quick-filters-footer {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.quick-filters-footer p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.inline-icon {
+  color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .quick-filters-section {
+    margin: 1rem 0;
+    padding: 1.5rem 1rem;
+  }
+
+  .quick-filters-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .quick-filter-card {
+    padding: 1rem;
+  }
+
+  .quick-filter-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+  }
+
+  .quick-filter-name {
+    font-size: 1rem;
+  }
+
+  .quick-filters-header h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-filters-section {
+    padding: 1rem;
+  }
+
+  .quick-filter-card {
+    padding: 0.875rem;
+  }
+
+  .quick-filter-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1.1rem;
+  }
+
+  .quick-filter-name {
+    font-size: 0.95rem;
+  }
+
+  .quick-filter-category,
+  .quick-filter-count,
+  .quick-filter-price {
+    font-size: 0.75rem;
+  }
+
+  .quick-filters-footer p {
+    font-size: 0.8rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
